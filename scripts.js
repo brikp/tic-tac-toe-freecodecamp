@@ -7,18 +7,71 @@ let gameBoard = [
 
 let humanPiece = GamePieces.x;
 let computerPiece = GamePieces.o;
+let currentTurn = humanPiece;
 
 gameBoard = [
   'o', 'x', '2',
   '3', 'x', '5',
   '6', '7', 'o'];
 
-let resetGame = function () {
+let resetGame = function (startingPlayer) {
   gameBoard = [
   '0', '1', '2',
   '3', '4', '5',
   '6', '7', '8'];
+  currentTurn = startingPlayer;
+  updateGameBoardElement();
+};
+
+let processTurn = function (player) {
+
+
+
+  if (checkIfWinningState(gameBoard, humanPiece)) {
+    gameBoard = [
+      'x', 'x', 'x',
+      'x', 'x', 'x',
+      'x', 'x', 'x'];
+    updateGameBoardElement();
+  }
+  else if (checkIfWinningState(gameBoard, computerPiece)) {
+    gameBoard = [
+      'o', 'o', 'o',
+      'o', 'o', 'o',
+      'o', 'o', 'o'];
+    updateGameBoardElement();
+  }
+  else if (checkIfTie()) {
+    gameBoard = [
+      't', 't', 't',
+      't', 't', 't',
+      't', 't', 't'];
+    updateGameBoardElement();
+  }
 }
+
+let processClickedSquare = function (id) {
+
+  let index = id.slice(id.length - 1);
+  console.log('Clicked ' + index);
+  gameBoard[index] = currentTurn;
+  let computerTurn;
+  updateGameBoardElement();
+};
+
+let updateGameBoardElement = function () {
+  for (let i = 0; i < gameBoard.length; i++) {
+    let idName = 'game-square-' + i;
+    let squareText;
+    if (gameBoard[i] != GamePieces.x && gameBoard[i] != GamePieces.o) {
+      squareText = '';
+    }
+    else {
+      squareText = gameBoard[i];
+    }
+    document.getElementById(idName).textContent = squareText;
+  }
+};
 
 let minmax = function (board, player, depth) {
 
@@ -95,7 +148,7 @@ let minmax = function (board, player, depth) {
   }
 
   return bestMove;
-}
+};
 
 let checkIfWinningState = function (board, piece) {
   // Check horizontal rows
@@ -114,15 +167,15 @@ let checkIfWinningState = function (board, piece) {
     return true;
   else 
     return false;
-}
+};
 
 let getEmptySquares = function (board) {
   return board.filter((square) => square != GamePieces.x && square != GamePieces.o);
-}
+};
 
 let checkIfTie = function () {
   return getEmptySquares(gameBoard).length == 0; 
-}
+};
 
 let printBoard = function (board) {
   let boardToString = ` =======
@@ -132,11 +185,23 @@ let printBoard = function (board) {
   -----
   ${board[6]}|${board[7]}|${board[8]}`
   console.log(boardToString);
+};
+
+let bindEventListeners = function () {
+  resetGame(computerPiece);
+  updateGameBoardElement();
+
+  let gameSquares = document.getElementsByClassName('game-square');
+  for (let i = 0; i < gameSquares.length; i++) {
+    gameSquares[i].addEventListener('click', () => processClickedSquare(gameSquares[i].getAttribute('id')));
+  }
+
+  document.getElementById('reset-game').addEventListener('click', () => resetGame(computerPiece));
+};
+
+if (document.readyState != 'loading') {
+  bindEventListeners();
 }
-
-
-printBoard(gameBoard);
-let result = minmax(gameBoard, computerPiece, 0);
-console.log(result);
-gameBoard[result.index] = computerPiece;
-printBoard(gameBoard);
+else {
+  document.addEventListener('DOMContentLoaded', () => bindEventListeners());
+}
