@@ -1,62 +1,75 @@
 let GamePieces = Object.freeze({'x': 'x', 'o': 'o'});
+let AI_DIFFICULTY = 5; // percentage chance to take suboptimal move
 
 let gameBoard = [
-  '0', '1', '2',
-  '3', '4', '5',
-  '6', '7', '8'];
+  0, 1, 2,
+  3, 4, 5,
+  6, 7, 8];
 
 let humanPiece = GamePieces.x;
 let computerPiece = GamePieces.o;
-let currentTurn = humanPiece;
+let startingPiece = humanPiece;
+let isGameFinished = false;
+let humanScore = 0;
+let computerScore = 0;
 
-gameBoard = [
-  'o', 'x', '2',
-  '3', 'x', '5',
-  '6', '7', 'o'];
-
-let resetGame = function (startingPlayer) {
+let restartGame = function (startingPlayer) {
+  isGameFinished = false;
+  document.getElementById('message').textContent = '';
   gameBoard = [
-  '0', '1', '2',
-  '3', '4', '5',
-  '6', '7', '8'];
-  currentTurn = startingPlayer;
+  0, 1, 2,
+  3, 4, 5,
+  6, 7, 8];
+  startingPiece = startingPlayer;
   updateGameBoardElement();
 };
 
-let processTurn = function (player) {
-
-
-
-  if (checkIfWinningState(gameBoard, humanPiece)) {
-    gameBoard = [
-      'x', 'x', 'x',
-      'x', 'x', 'x',
-      'x', 'x', 'x'];
-    updateGameBoardElement();
-  }
-  else if (checkIfWinningState(gameBoard, computerPiece)) {
-    gameBoard = [
-      'o', 'o', 'o',
-      'o', 'o', 'o',
-      'o', 'o', 'o'];
-    updateGameBoardElement();
+let processTurn = function (square, player) {
+  gameBoard[square] = player;
+  updateGameBoardElement();
+  if (checkIfWinningState(gameBoard, player)) {
+    isGameFinished = true;
+    if (player == humanPiece) {
+      humanScore++;
+      document.getElementById('message').textContent = 'Human won!';
+      document.getElementById('human-score').textContent = 'Human score: ' + humanScore;
+      startingPiece = computerPiece;
+    }
+    else {
+      computerScore++;
+      document.getElementById('message').textContent = 'AI will annihilate us all!';
+      document.getElementById('computer-score').textContent = 'Computer score: ' + computerScore;
+      startingPiece = humanPiece;
+    }
   }
   else if (checkIfTie()) {
-    gameBoard = [
-      't', 't', 't',
-      't', 't', 't',
-      't', 't', 't'];
-    updateGameBoardElement();
+    isGameFinished = true;
+    document.getElementById('message').textContent = 'It\'s a delicate balance.';
+    startingPiece = (player == humanPiece) ? computerPiece : humanPiece;
   }
-}
+  else if (player == humanPiece) {
+    processComputerTurn();
+  }
+};
+
+let processComputerTurn = function () {
+  let index = minmax(gameBoard, computerPiece, 0).index;
+  if (Math.random() * 100 < AI_DIFFICULTY) {
+    console.log('Making suboptimal move');
+    index = getSuboptimalMove(index);
+  }
+  
+  processTurn(index, computerPiece);
+};
 
 let processClickedSquare = function (id) {
-
   let index = id.slice(id.length - 1);
-  console.log('Clicked ' + index);
-  gameBoard[index] = currentTurn;
-  let computerTurn;
-  updateGameBoardElement();
+  let isValidSquare = checkIfValidSquare(gameBoard, index);
+
+  if (!isGameFinished && isValidSquare) {
+    console.log('Clicked ' + index);
+    processTurn(index, humanPiece);
+  }
 };
 
 let updateGameBoardElement = function () {
@@ -71,6 +84,13 @@ let updateGameBoardElement = function () {
     }
     document.getElementById(idName).textContent = squareText;
   }
+};
+
+let getSuboptimalMove = function (bestMoveIndex) {
+  let emptySquares = getEmptySquares(gameBoard);
+  emptySquares.splice(emptySquares.indexOf(bestMoveIndex), 1)
+  let randomSquare = emptySquares[Math.floor(Math.random() * 100 % emptySquares.length)];
+  return randomSquare;
 };
 
 let minmax = function (board, player, depth) {
@@ -173,6 +193,10 @@ let getEmptySquares = function (board) {
   return board.filter((square) => square != GamePieces.x && square != GamePieces.o);
 };
 
+let checkIfValidSquare = function (board, index) {
+  return getEmptySquares(board).indexOf(Number(index)) >= 0;
+};
+
 let checkIfTie = function () {
   return getEmptySquares(gameBoard).length == 0; 
 };
@@ -188,7 +212,7 @@ let printBoard = function (board) {
 };
 
 let bindEventListeners = function () {
-  resetGame(computerPiece);
+  restartGame(startingPiece);
   updateGameBoardElement();
 
   let gameSquares = document.getElementsByClassName('game-square');
@@ -196,7 +220,7 @@ let bindEventListeners = function () {
     gameSquares[i].addEventListener('click', () => processClickedSquare(gameSquares[i].getAttribute('id')));
   }
 
-  document.getElementById('reset-game').addEventListener('click', () => resetGame(computerPiece));
+  document.getElementById('reset-game').addEventListener('click', () => restartGame(startingPiece));
 };
 
 if (document.readyState != 'loading') {
