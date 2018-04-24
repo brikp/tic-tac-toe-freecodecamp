@@ -1,5 +1,12 @@
 let GamePieces = Object.freeze({'x': 'x', 'o': 'o'});
 let AI_DIFFICULTY = 5; // percentage chance to take suboptimal move
+let AI_TURN_WAIT_TIME = 500; // ms to wait before AI turn
+let AI_TURN_AFTER_DELAY = 250; // ms to wait befor accepting input after ai turn
+let GAME_RESET_DELAY = 1000; // ms to wait before starting a new round
+let PIECE_ICONS = {
+  x: '<i class="fas fa-times"></i>',
+  o: '<i class="fas fa-ban"></i>'
+};
 
 let gameBoard = [
   0, 1, 2,
@@ -8,20 +15,31 @@ let gameBoard = [
 
 let humanPiece = GamePieces.x;
 let computerPiece = GamePieces.o;
-let startingPiece = humanPiece;
 let isGameFinished = false;
 let humanScore = 0;
 let computerScore = 0;
+let currentTurn;
 
 let restartGame = function (startingPlayer) {
+  currentTurn = startingPlayer;
   isGameFinished = false;
   document.getElementById('message').textContent = '';
   gameBoard = [
   0, 1, 2,
   3, 4, 5,
   6, 7, 8];
-  startingPiece = startingPlayer;
+  
   updateGameBoardElement();
+  if (startingPlayer == computerPiece) {
+    setTimeout(() => processComputerTurn(), AI_TURN_WAIT_TIME);
+  }
+};
+
+let resetGameProgress = function () {
+  computerScore = 0;
+  humanScore = 0;
+  updateScoreElements();
+  restartGame(humanPiece);
 };
 
 let processTurn = function (square, player) {
@@ -31,24 +49,27 @@ let processTurn = function (square, player) {
     isGameFinished = true;
     if (player == humanPiece) {
       humanScore++;
-      document.getElementById('message').textContent = 'Human won!';
-      document.getElementById('human-score').textContent = 'Human score: ' + humanScore;
-      startingPiece = computerPiece;
+      updateMessageElement('Human won!');
+      updateScoreElements();
+      setTimeout(() => restartGame(computerPiece), GAME_RESET_DELAY);
     }
     else {
       computerScore++;
-      document.getElementById('message').textContent = 'AI will annihilate us all!';
-      document.getElementById('computer-score').textContent = 'Computer score: ' + computerScore;
-      startingPiece = humanPiece;
+      updateMessageElement('AI will annihilate us all!');
+      updateScoreElements();
+      setTimeout(() => restartGame(humanPiece), GAME_RESET_DELAY);
     }
   }
   else if (checkIfTie()) {
     isGameFinished = true;
-    document.getElementById('message').textContent = 'It\'s a delicate balance.';
-    startingPiece = (player == humanPiece) ? computerPiece : humanPiece;
+    updateMessageElement('It\'s a delicate balance.');
+    let startingPiece = (player == humanPiece) ? computerPiece : humanPiece;
+    setTimeout(() => restartGame(startingPiece), GAME_RESET_DELAY);
   }
   else if (player == humanPiece) {
-    processComputerTurn();
+    currentTurn = computerPiece;
+    setTimeout(() => processComputerTurn(), AI_TURN_WAIT_TIME);
+    //processComputerTurn();
   }
 };
 
@@ -58,6 +79,7 @@ let processComputerTurn = function () {
     console.log('Making suboptimal move');
     index = getSuboptimalMove(index);
   }
+  setTimeout(() => {currentTurn = humanPiece;}, AI_TURN_AFTER_DELAY);
   
   processTurn(index, computerPiece);
 };
@@ -66,8 +88,7 @@ let processClickedSquare = function (id) {
   let index = id.slice(id.length - 1);
   let isValidSquare = checkIfValidSquare(gameBoard, index);
 
-  if (!isGameFinished && isValidSquare) {
-    console.log('Clicked ' + index);
+  if (!isGameFinished && isValidSquare && currentTurn == humanPiece) {
     processTurn(index, humanPiece);
   }
 };
@@ -80,17 +101,35 @@ let updateGameBoardElement = function () {
       squareText = '';
     }
     else {
-      squareText = gameBoard[i];
+      if (gameBoard[i] == GamePieces.x) {
+        squareText = PIECE_ICONS.x;
+      }
+      else {
+        squareText = PIECE_ICONS.o;
+      }
     }
-    document.getElementById(idName).textContent = squareText;
+    document.getElementById(idName).innerHTML = squareText;
   }
+};
+
+let updateScoreElements = function () {
+  document.getElementById('human-score').textContent = 'Human score: ' + humanScore;
+  document.getElementById('computer-score').textContent = 'Computer score: ' + computerScore;
+};
+
+let updateMessageElement = function (message) {
+  document.getElementById('message').textContent = message;
 };
 
 let getSuboptimalMove = function (bestMoveIndex) {
   let emptySquares = getEmptySquares(gameBoard);
-  emptySquares.splice(emptySquares.indexOf(bestMoveIndex), 1)
-  let randomSquare = emptySquares[Math.floor(Math.random() * 100 % emptySquares.length)];
-  return randomSquare;
+  if (emptySquares.length == 1) {
+    return bestMoveIndex;
+  } else {
+    emptySquares.splice(emptySquares.indexOf(bestMoveIndex), 1)
+    let randomSquare = emptySquares[Math.floor(Math.random() * 100 % emptySquares.length)];
+    return randomSquare;
+  }
 };
 
 let minmax = function (board, player, depth) {
@@ -212,7 +251,7 @@ let printBoard = function (board) {
 };
 
 let bindEventListeners = function () {
-  restartGame(startingPiece);
+  resetGameProgress();
   updateGameBoardElement();
 
   let gameSquares = document.getElementsByClassName('game-square');
@@ -220,7 +259,7 @@ let bindEventListeners = function () {
     gameSquares[i].addEventListener('click', () => processClickedSquare(gameSquares[i].getAttribute('id')));
   }
 
-  document.getElementById('reset-game').addEventListener('click', () => restartGame(startingPiece));
+  document.getElementById('reset-game').addEventListener('click', () => resetGameProgress());
 };
 
 if (document.readyState != 'loading') {
