@@ -1,11 +1,13 @@
 let GamePieces = Object.freeze({'x': 'x', 'o': 'o'});
 let AI_DIFFICULTY = 5; // percentage chance to take suboptimal move
-let AI_TURN_WAIT_TIME = 500; // ms to wait before AI turn
+let AI_TURN_WAIT_TIME = 750; // ms to wait before AI turn
 let AI_TURN_AFTER_DELAY = 250; // ms to wait befor accepting input after ai turn
-let GAME_RESET_DELAY = 1000; // ms to wait before starting a new round
-let PIECE_ICONS = {
-  x: '<i class="fas fa-times"></i>',
-  o: '<i class="fas fa-ban"></i>'
+let GAME_RESET_DELAY = 2000; // ms to wait before starting a new round
+let PIECE_ELEMENTS = {
+  x: {icon: '<i class="game-icon-x align-self-center fas fa-times"></i>',
+      id: 'icon-select-x'},
+  o: {icon: '<i class="game-icon-o align-self-center fas fa-ban"></i>', 
+      id: 'icon-select-o'}
 };
 
 let gameBoard = [
@@ -18,7 +20,7 @@ let computerPiece = GamePieces.o;
 let isGameFinished = false;
 let humanScore = 0;
 let computerScore = 0;
-let currentTurn;
+let currentTurn = humanPiece;
 
 let restartGame = function (startingPlayer) {
   currentTurn = startingPlayer;
@@ -33,14 +35,41 @@ let restartGame = function (startingPlayer) {
   if (startingPlayer == computerPiece) {
     setTimeout(() => processComputerTurn(), AI_TURN_WAIT_TIME);
   }
+  animateCurrentTurn();
 };
 
 let resetGameProgress = function () {
-  computerScore = 0;
-  humanScore = 0;
-  updateScoreElements();
-  restartGame(humanPiece);
+  
+  
 };
+
+let animateCurrentTurn = function () {
+
+  let xPiece = document.getElementById('icon-select-x');
+  let oPiece = document.getElementById('icon-select-o');
+
+  if (isGameFinished) {
+    oPiece.classList.remove('fa-spin');
+    oPiece.style.cssText = "font-size: 1em;"
+    xPiece.classList.remove('fa-spin');
+    xPiece.style.cssText = "font-size: 1em;"
+  }
+  else {
+    if (currentTurn == GamePieces.x) {
+      oPiece.classList.remove('fa-spin');
+      oPiece.style.cssText = "font-size: 1em;"
+      xPiece.classList.add('fa-spin');
+      xPiece.style.cssText = "font-size: 1.5em;"
+
+    }
+    else {
+      xPiece.classList.remove('fa-spin');
+      xPiece.style.cssText = "font-size: 1em;"
+      oPiece.classList.add('fa-spin');
+      oPiece.style.cssText = "font-size: 1.5em;"
+    }
+  }
+}
 
 let processTurn = function (square, player) {
   gameBoard[square] = player;
@@ -49,14 +78,16 @@ let processTurn = function (square, player) {
     isGameFinished = true;
     if (player == humanPiece) {
       humanScore++;
-      updateMessageElement('Human won!');
+      updateMessageElement('Hope in humanity restored!');
       updateScoreElements();
+      animateCurrentTurn();
       setTimeout(() => restartGame(computerPiece), GAME_RESET_DELAY);
     }
     else {
       computerScore++;
       updateMessageElement('AI will annihilate us all!');
       updateScoreElements();
+      animateCurrentTurn();
       setTimeout(() => restartGame(humanPiece), GAME_RESET_DELAY);
     }
   }
@@ -64,10 +95,12 @@ let processTurn = function (square, player) {
     isGameFinished = true;
     updateMessageElement('It\'s a delicate balance.');
     let startingPiece = (player == humanPiece) ? computerPiece : humanPiece;
+    animateCurrentTurn();
     setTimeout(() => restartGame(startingPiece), GAME_RESET_DELAY);
   }
   else if (player == humanPiece) {
     currentTurn = computerPiece;
+    animateCurrentTurn();
     setTimeout(() => processComputerTurn(), AI_TURN_WAIT_TIME);
     //processComputerTurn();
   }
@@ -79,7 +112,10 @@ let processComputerTurn = function () {
     console.log('Making suboptimal move');
     index = getSuboptimalMove(index);
   }
-  setTimeout(() => {currentTurn = humanPiece;}, AI_TURN_AFTER_DELAY);
+  setTimeout(() => {
+    currentTurn = humanPiece;
+    animateCurrentTurn();
+  }, AI_TURN_AFTER_DELAY);
   
   processTurn(index, computerPiece);
 };
@@ -102,10 +138,10 @@ let updateGameBoardElement = function () {
     }
     else {
       if (gameBoard[i] == GamePieces.x) {
-        squareText = PIECE_ICONS.x;
+        squareText = PIECE_ELEMENTS.x.icon;
       }
       else {
-        squareText = PIECE_ICONS.o;
+        squareText = PIECE_ELEMENTS.o.icon;
       }
     }
     document.getElementById(idName).innerHTML = squareText;
@@ -113,8 +149,8 @@ let updateGameBoardElement = function () {
 };
 
 let updateScoreElements = function () {
-  document.getElementById('human-score').textContent = 'Human score: ' + humanScore;
-  document.getElementById('computer-score').textContent = 'Computer score: ' + computerScore;
+  document.getElementById('human-score').textContent = humanScore;
+  document.getElementById('computer-score').textContent = computerScore;
 };
 
 let updateMessageElement = function (message) {
@@ -250,21 +286,65 @@ let printBoard = function (board) {
   console.log(boardToString);
 };
 
-let bindEventListeners = function () {
-  resetGameProgress();
+function bindEventListeners  () {
+  document.getElementById('game-field').style.display = 'none';
+  //resetGameProgress();
   updateGameBoardElement();
 
-  let gameSquares = document.getElementsByClassName('game-square');
-  for (let i = 0; i < gameSquares.length; i++) {
-    gameSquares[i].addEventListener('click', () => processClickedSquare(gameSquares[i].getAttribute('id')));
+  let elements = document.getElementsByClassName('game-square');
+  for (let i = 0; i < elements.length; i++) {
+    //console.log(elements[i]);
+    elements[i].addEventListener('click', () =>  {
+      processClickedSquare(elements[i].getAttribute('id'));
+    });
   }
 
-  document.getElementById('reset-game').addEventListener('click', () => resetGameProgress());
+  document.getElementById('o-col').addEventListener('click', setPickedPiece);
+  document.getElementById('x-col').addEventListener('click', setPickedPiece);
+
+  //document.getElementById('reset-game').addEventListener('click', () => resetGameProgress());
 };
 
 if (document.readyState != 'loading') {
   bindEventListeners();
 }
 else {
-  document.addEventListener('DOMContentLoaded', () => bindEventListeners());
+  document.addEventListener('DOMContentLoaded', bindEventListeners(), false);
 }
+
+function setPickedPiece () {
+  let callerID = this.getAttribute('id');
+  console.log(this);
+  if (callerID == 'o-col') {
+    humanPiece = GamePieces.o;
+    computerPiece = GamePieces.x;
+  }
+  else {
+    humanPiece = GamePieces.x;
+    computerPiece = GamePieces.o;
+  }
+  let elements = document.getElementsByClassName('player-icons');
+  for (let i = 0; i < elements.length; i++) {
+    let el = elements[i];
+    el.style.cssText = "height: 40px; font-size: 2em;";
+  }
+  if (humanPiece == GamePieces.x) {
+    document.getElementById('x-col').style.color = "rgb(223, 54, 54)";
+    document.getElementById('o-col').style.color = "rgb(189, 189, 189)";
+  } else {
+    document.getElementById('x-col').style.color = "rgb(189, 189, 189)";
+    document.getElementById('o-col').style.color = "rgb(162, 247, 77)";
+  }
+
+  document.getElementById('x-col').classList.remove('border-right');
+  document.getElementById('piece-choice-text').style.display = 'none';
+  document.getElementById('game-field').style.display = 'inline';
+
+  document.getElementById('o-col').removeEventListener('click', setPickedPiece);
+  document.getElementById('x-col').removeEventListener('click', setPickedPiece);
+  
+  computerScore = 0;
+  humanScore = 0;
+  updateScoreElements();
+  restartGame(humanPiece);
+};

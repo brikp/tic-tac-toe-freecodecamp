@@ -12,66 +12,71 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+    <link href='https://fonts.googleapis.com/css?family=Oswald:600' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div id="piece-choice" class="container-fluid w-75 text-center">
+    <div id="piece-choice" class="container-fluid w-75 mt-5">
       <div class="row justify-content-center ">
-        <p>Pick your weapon:</p>
+        <p id="piece-choice-text" class="text-center">Choose wisely:</p>
       </div>
-      <div class="row justify-content-center">
-        <div class="col-3">
-          <i class="fas fa-times"></i>
+      <div class="row justify-content-center mt-1 icon-preselect">
+        <div id="x-col" class="col d-flex justify-content-center border-right player-icons">
+          <i id="icon-select-x" class=" fas fa-times align-self-center"></i>
           
         </div>
-        <div class="col-3">
-          <i class="fas fa-ban"></i>
+        <div id="o-col" class="player-icons col d-flex justify-content-center ">
+          <i id="icon-select-o" class=" fas fa-ban align-self-center"></i>
         </div>
       </div>
     </div>
     <div id="game-field" class="container">
       <div class="row justify-content-center mt-3">
-        <div id="game-square-0" class="col-2 game-square">
+        <div id="game-square-0" class="col-2 game-square d-flex justify-content-center">
           0
         </div>
-        <div id="game-square-1" class="col-2 border-left border-right game-square">
+        <div id="game-square-1" class="col-2 border-left border-right game-square d-flex justify-content-center">
           1
         </div>
-        <div id="game-square-2" class="col-2 game-square">
+        <div id="game-square-2" class="col-2 game-square d-flex justify-content-center">
           2
         </div>    
         <div class="w-100"></div>
-        <div id="game-square-3" class="col-2 border-top border-bottom game-square">
+        <div id="game-square-3" class="col-2 border-top border-bottom game-square d-flex justify-content-center">
           3
         </div>
-        <div id="game-square-4" class="col-2 border game-square">
+        <div id="game-square-4" class="col-2 border game-square d-flex justify-content-center">
           4
         </div>
-        <div id="game-square-5" class="col-2 border-top border-bottom game-square">
+        <div id="game-square-5" class="col-2 border-top border-bottom game-square d-flex justify-content-center">
           5
         </div>    
         <div class="w-100"></div>
-        <div id="game-square-6" class="col-2 game-square">
+        <div id="game-square-6" class="col-2 game-square d-flex justify-content-center">
           6
         </div>
-        <div id="game-square-7" class="col-2 border-left border-right game-square">
+        <div id="game-square-7" class="col-2 border-left border-right game-square d-flex justify-content-center">
           7
         </div>
-        <div id="game-square-8" class="col-2 game-square">
+        <div id="game-square-8" class="col-2 game-square d-flex justify-content-center">
           8
         </div>    
       </div>
-      <div class="row">
-        <button id="reset-game">Reset</button>
+      <div class="row justify-content-center mt-5">
+        <div class="col-6 text-center">
+          <p id="score"><span id="human-score"></span>  You | AI  <span id="computer-score"></span></p>
+        </div>
       </div>
-      <div class="row">
-        <h4 id="computer-score">Computer score: 0</h4>
-      </div>
-      <div class="row">
-        <h4 id="human-score">Human score: 0</h4>
-      </div>
-      <div class="row">
-        <h4 id="message"></h4>
+
+      <div class="row justify-content-center mt-2">
+          <div class="col-6 text-center">
+              <i id="icon-reset" class=" fas fa-undo align-self-center"></i>
+          </div>
+        </div>
+      
+      <div class="row justify-content-center mt-5">
+        <div class="col-6 text-center">
+          <p id="message"></p>
       </div>
     </div>
 

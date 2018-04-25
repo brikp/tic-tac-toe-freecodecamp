@@ -1,6 +1,60 @@
+body {
+  background-color: rgb(107, 97, 97);
+  font-family: 'Oswald', sans-serif;
+}
+
 .game-square {
+  transition: all ease-in-out 0.5s;
   height: 100px;
-  width: 50px;
+  width: 40px;
   text-align: center;
   
+}
+
+#piece-choice-text {
+  font-size: 3em;
+  color: rgb(189, 189, 189);
+}
+
+#score {
+  font-size: 1.9em;
+  color: rgb(189, 189, 189);
+}
+
+#message {
+  font-size: 1.25em;
+  color: rgb(189, 189, 189);
+}
+
+#icon-reset {
+  transition: color ease-in-out 0.3s;
+  font-size: 3em;
+  color: rgb(189, 189, 189);
+}
+
+#icon-reset:hover {
+  color: rgb(136, 136, 136);
+}
+
+#o-col, #x-col {
+  transition: color 0.3s;
+  transition: all 0.5s;
+  
+  font-size: 4em;
+  height: 50vh;
+  color: rgb(189, 189, 189);
+}
+
+#x-col:hover {
+  color: rgb(223, 54, 54);
+
+}
+
+#o-col:hover {
+  color: rgb(162, 247, 77);
+}
+
+.game-icon-x, .game-icon-o {
+  font-size: 2em;
+  color: rgb(189, 189, 189);
 }
