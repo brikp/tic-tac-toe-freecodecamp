@@ -18,6 +18,7 @@ let gameBoard = [
 let humanPiece = GamePieces.x;
 let computerPiece = GamePieces.o;
 let isGameFinished = false;
+let isPiecePicked = false;
 let humanScore = 0;
 let computerScore = 0;
 let currentTurn = humanPiece;
@@ -38,10 +39,7 @@ let restartGame = function (startingPlayer) {
   animateCurrentTurn();
 };
 
-let resetGameProgress = function () {
-  
-  
-};
+
 
 let animateCurrentTurn = function () {
 
@@ -54,7 +52,7 @@ let animateCurrentTurn = function () {
     xPiece.classList.remove('fa-spin');
     xPiece.style.cssText = "font-size: 1em;"
   }
-  else {
+  else if (isPiecePicked) {
     if (currentTurn == GamePieces.x) {
       oPiece.classList.remove('fa-spin');
       oPiece.style.cssText = "font-size: 1em;"
@@ -102,7 +100,6 @@ let processTurn = function (square, player) {
     currentTurn = computerPiece;
     animateCurrentTurn();
     setTimeout(() => processComputerTurn(), AI_TURN_WAIT_TIME);
-    //processComputerTurn();
   }
 };
 
@@ -288,7 +285,6 @@ let printBoard = function (board) {
 
 function bindEventListeners  () {
   document.getElementById('game-field').style.display = 'none';
-  //resetGameProgress();
   updateGameBoardElement();
 
   let elements = document.getElementsByClassName('game-square');
@@ -309,7 +305,7 @@ function bindEventListeners  () {
   resetButton.addEventListener('mouseleave', () => {
     resetButton.classList.remove('fa-spin');
   });
-  //document.getElementById('reset-game').addEventListener('click', () => resetGameProgress());
+  document.getElementById('icon-reset').addEventListener('click', () => resetGameProgress());
 };
 
 if (document.readyState != 'loading') {
@@ -320,6 +316,7 @@ else {
 }
 
 function setPickedPiece () {
+  isPiecePicked = true;
   let callerID = this.getAttribute('id');
   console.log(this);
   if (callerID == 'o-col') {
@@ -349,9 +346,36 @@ function setPickedPiece () {
 
   document.getElementById('o-col').removeEventListener('click', setPickedPiece);
   document.getElementById('x-col').removeEventListener('click', setPickedPiece);
-  
+    
   computerScore = 0;
   humanScore = 0;
   updateScoreElements();
   restartGame(humanPiece);
+};
+
+function xPieceHover () {
+  document.getElementById('x-col').style.color = 'rgb(223, 54, 54);';
+};
+
+function oPieceHover () {
+  document.getElementById('o-col').style.color = 'rgb(162, 247, 77);';
+}
+
+let resetGameProgress = function () {
+  isPiecePicked = false;
+  document.getElementById('piece-choice-text').style.display = 'inline';
+  document.getElementById('game-field').style.display = 'none';
+
+  let elements = document.getElementsByClassName('player-icons');
+  for (let i = 0; i < elements.length; i++) {
+    let el = elements[i];
+    el.style.cssText = "height: 50vh; font-size: 3em;";
+  }
+
+  document.getElementById('x-col').classList.add('border-right');
+  document.getElementById('icon-select-x').classList.remove('fa-spin');
+  document.getElementById('icon-select-o').classList.remove('fa-spin');
+
+  document.getElementById('o-col').addEventListener('click', setPickedPiece);
+  document.getElementById('x-col').addEventListener('click', setPickedPiece);
 };
