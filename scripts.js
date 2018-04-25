@@ -302,6 +302,13 @@ function bindEventListeners  () {
   document.getElementById('o-col').addEventListener('click', setPickedPiece);
   document.getElementById('x-col').addEventListener('click', setPickedPiece);
 
+  let resetButton = document.getElementById('icon-reset');
+  resetButton.addEventListener('mouseenter', () => {
+    resetButton.classList.add('fa-spin');
+  });
+  resetButton.addEventListener('mouseleave', () => {
+    resetButton.classList.remove('fa-spin');
+  });
   //document.getElementById('reset-game').addEventListener('click', () => resetGameProgress());
 };
 
