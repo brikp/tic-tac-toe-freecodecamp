@@ -74,3 +74,12 @@ body {
   color: rgb(189, 189, 189);
 }
 
+#github-icon {
+  font-size: 1.5em;
+  color: rgb(189, 189, 189);
+}
+
+#github-icon:hover {
+  transition: color 0.3s;
+  color: rgb(160, 160, 160);
+}
