@@ -3,12 +3,21 @@ body {
   font-family: 'Oswald', sans-serif;
 }
 
+#content {
+  max-width: 700px;
+}
+
 .game-square {
   transition: all ease-in-out 0.5s;
   height: 100px;
   width: 40px;
   text-align: center;
-  
+}
+
+@media (max-width: 500px) {
+  .game-square {
+    height: 60px;
+  }
 }
 
 #piece-choice-text {
@@ -19,6 +28,12 @@ body {
 #score {
   font-size: 1.9em;
   color: rgb(189, 189, 189);
+}
+
+@media (max-width: 350px) {
+  #score {
+    font-size: 1.5em;
+  }
 }
 
 #message {
@@ -58,3 +73,4 @@ body {
   font-size: 2em;
   color: rgb(189, 189, 189);
 }
+
